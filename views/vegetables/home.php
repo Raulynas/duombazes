@@ -1,23 +1,17 @@
 <?php
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "kioskas";
+include("../../Controllers/VegetableController.php");
 
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    echo "connection failed";
-    die;
+//kadangi i home galima ateiti su POST metodu tik is delete funkcijos galima iskart kviest destroy
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    destroy();
 }
 
-$sql = "SELECT * from `vegetables` ";
-
-$result = $conn->query($sql);
-
+// $conn-> querry() funkcija kreiptis is duombaze su $sql stringu
+$vegetables = getAll();
 
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -44,6 +38,12 @@ $result = $conn->query($sql);
 </head>
 
 <body>
+    <?php
+    include("../header.php");
+    ?>
+    <h2>Darzoves</h2>
+    <div id="sum">
+    </div>
     <a href="./create.php">sukurti</a>
     <table>
         <tr>
@@ -56,8 +56,10 @@ $result = $conn->query($sql);
         </tr>
 
         <?php
-
-        while ($row = $result->fetch_assoc()) {
+        $sum = 0;
+        // $vegetables->fetch_assoc() grazina kiekviena sekancia eilute...
+        while ($row = $vegetables->fetch_assoc()) {
+            $sum += $row["quantity"];
             echo '<tr>
             <td>' . $row["id"] . '</td>
             <td>' . $row["name"] . '</td>
@@ -67,7 +69,7 @@ $result = $conn->query($sql);
                 <a href="./edit.php?id=' . $row['id'] . '">edit</a>
             </td>
             <td>
-                <form action="./delete.php" method="post">
+                <form action="" method="post">
                     <input type="hidden" name="id" value ="' . $row["id"] . '">
                     <button type="submit">delete</button>
                  </form>
@@ -78,8 +80,10 @@ $result = $conn->query($sql);
 
 
     </table>
-
-
+    <script>
+        let overallSum = <?= $sum ?>;
+        document.getElementById("sum").innerHTML = overallSum;
+    </script>
 </body>
 
 </html>
